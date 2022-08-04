@@ -58,20 +58,14 @@ Public Class Form1
             If FirstEx(0) < SecondEx(0) Then Partm1a = FirstEx(0) : Partm1b = SecondEx(0) _
             Else Partm1a = SecondEx(0) : Partm1b = FirstEx(0)
 
-            'MessageBox.Show($"FirstEx: {FirstEx(0)} : {FirstEx(1)}{vbCrLf}SecondEx: {SecondEx(0)} : {SecondEx(1)}")
-            'MessageBox.Show($"Partm1a: {Partm1a}{vbCrLf}Partm1b: {Partm1b}")
-
-            'MessageBox.Show("Schwannek0")
-
             Dim FirstExL As New List(Of String)
             Dim StartValA As Integer = Partm1a
             While Partm1a <= Partm1b
                 FirstExL.Add(Partm1a.ToString())
                 Partm1a += 1
-                'BackgroundWorker1.ReportProgress(100 - (100 / (Partm1b - StartValA) * (Partm1b - Partm1a)))
             End While
             If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
-            'MessageBox.Show("Schwannek1")
+
             Dim Part0a As Integer
             Dim Part0b As Integer
             If FirstEx(1) < SecondEx(1) Then Part0a = FirstEx(1) : Part0b = SecondEx(1) _
@@ -82,10 +76,9 @@ Public Class Form1
             While Part0a <= Part0b
                 SecondExL.Add(Part0a.ToString())
                 Part0a += 1
-                'BackgroundWorker1.ReportProgress(100 - (100 / (Part0b - StartValB) * (Part0b - Part0a)))
             End While
             If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
-            'MessageBox.Show("Schwannek2")
+
             Dim AllCombA As Integer = FirstExL.Count * SecondExL.Count
             Counter = 0
             For Each ElementA In FirstExL
@@ -107,16 +100,15 @@ Public Class Form1
         Dim Part1b As Integer
         If FirstCords(0) < SecondCords(0) Then Part1a = FirstCords(0) : Part1b = SecondCords(0) _
             Else Part1a = SecondCords(0) : Part1b = FirstCords(0)
-        'MessageBox.Show("Schwannek3")
+
         Dim FirstPart As New List(Of String)
         Dim StartValC As Integer = Part1a
         While Part1a <= Part1b
             FirstPart.Add(Part1a.ToString())
             Part1a += 1
-            'BackgroundWorker1.ReportProgress(100 - (100 / (Part1b - StartValC) * (Part1b - Part1a)))
         End While
         If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
-        'MessageBox.Show("Schwannek4")
+
         Dim Part2a As Integer
         Dim Part2b As Integer
         If FirstCords(1) < SecondCords(1) Then Part2a = FirstCords(1) : Part2b = SecondCords(1) _
@@ -127,7 +119,6 @@ Public Class Form1
         While Part2a <= Part2b
             SecondPart.Add(Part2a.ToString())
             Part2a += 1
-            'BackgroundWorker1.ReportProgress(100 - (100 / (Part2b - StartValD) * (Part2b - Part2a)))
         End While
         If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
 
