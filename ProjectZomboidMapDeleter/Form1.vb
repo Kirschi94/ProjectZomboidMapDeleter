@@ -17,6 +17,12 @@ Public Class Form1
     Dim Steps As Integer = 0
     Dim LastPercentage As Integer = 100
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        If TextBox1.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+        If TextBox2.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+        If TextBox3.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+        If CheckBox1.Checked And (TextBox4.Text = "" Or TextBox6.Text = "") Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+        If CheckBox2.Checked And TextBox5.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+
         If Button1.Text = "Go" Then
             TB1 = TextBox1.Text
             TB2 = TextBox2.Text
@@ -59,7 +65,6 @@ Public Class Form1
             Else Partm1a = SecondEx(0) : Partm1b = FirstEx(0)
 
             Dim FirstExL As New List(Of String)
-            Dim StartValA As Integer = Partm1a
             While Partm1a <= Partm1b
                 FirstExL.Add(Partm1a.ToString())
                 Partm1a += 1
@@ -72,7 +77,6 @@ Public Class Form1
             Else Part0a = SecondEx(1) : Part0b = FirstEx(1)
 
             Dim SecondExL As New List(Of String)
-            Dim StartValB As Integer = Part0a
             While Part0a <= Part0b
                 SecondExL.Add(Part0a.ToString())
                 Part0a += 1
@@ -81,11 +85,14 @@ Public Class Form1
 
             Dim AllCombA As Integer = FirstExL.Count * SecondExL.Count
             Counter = 0
+            Dim StarttimeA As DateTime = DateTime.Now
             For Each ElementA In FirstExL
                 For Each ElementB In SecondExL
                     Exclude.Add($"map_{ElementA}_{ElementB}.bin")
                     Counter += 1
-                    BackgroundWorker1.ReportProgress(100 / AllCombA * Counter)
+                    Dim TimeSpent As New TimeSpan(Now.Ticks - StarttimeA.Ticks)
+                    Dim SecondsRemaining As Integer = TimeSpent.TotalSeconds / (100 / AllCombA * Counter) * (100 - (100 / AllCombA * Counter))
+                    BackgroundWorker1.ReportProgress(100 / AllCombA * Counter, SecondsRemaining)
                 Next
                 If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
             Next
@@ -102,7 +109,6 @@ Public Class Form1
             Else Part1a = SecondCords(0) : Part1b = FirstCords(0)
 
         Dim FirstPart As New List(Of String)
-        Dim StartValC As Integer = Part1a
         While Part1a <= Part1b
             FirstPart.Add(Part1a.ToString())
             Part1a += 1
@@ -115,7 +121,6 @@ Public Class Form1
         Else Part2a = SecondCords(1) : Part2b = FirstCords(1)
 
         Dim SecondPart As New List(Of String)
-        Dim StartValD As Integer = Part1a
         While Part2a <= Part2b
             SecondPart.Add(Part2a.ToString())
             Part2a += 1
@@ -125,12 +130,15 @@ Public Class Form1
 
         Dim AllCombB As Integer = FirstPart.Count * SecondPart.Count
         Counter = 0
+        Dim StarttimeB As DateTime = DateTime.Now
         For Each ElementA In FirstPart
             For Each ElementB In SecondPart
                 Dim TempString = $"map_{ElementA}_{ElementB}.bin"
                 If Not Exclude.Contains(TempString) Then DeletionList.Add(TempString)
                 Counter += 1
-                BackgroundWorker1.ReportProgress(100 / AllCombB * Counter)
+                Dim TimeSpent As New TimeSpan(DateTime.Now.Ticks - StarttimeB.Ticks)
+                Dim SecondsRemaining As Integer = TimeSpent.TotalSeconds / (100 / AllCombB * Counter) * (100 - (100 / AllCombB * Counter))
+                BackgroundWorker1.ReportProgress(100 / AllCombB * Counter, SecondsRemaining)
             Next
             If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
         Next
@@ -156,17 +164,20 @@ Public Class Form1
         Dim ErrorList_i As String = ""
 
         Counter = 0
+        Dim StarttimeC As DateTime = DateTime.Now
         For Each Element In DeletionList
             Try
                 If CB2 Then IO.File.Copy(Mappath & Element, Backuppath & Element)
                 IO.File.Delete(Mappath & Element)
                 DeletedFiles_i += 1
             Catch ex As Exception
-                ErrorList_i = ErrorList_i & ex.Message & vbCrLf
+                ErrorList_i &= ex.Message & vbCrLf
                 Errors_i += 1
             End Try
             Counter += 1
-            BackgroundWorker1.ReportProgress(100 / DeletionList.Count * Counter)
+            Dim TimeSpent As New TimeSpan(DateTime.Now.Ticks - StarttimeC.Ticks)
+            Dim SecondsRemaining As Integer = TimeSpent.TotalSeconds / (100 / DeletionList.Count * Counter) * (100 - (100 / DeletionList.Count * Counter))
+            BackgroundWorker1.ReportProgress(100 / DeletionList.Count * Counter, SecondsRemaining)
             If BackgroundWorker1.CancellationPending = True Then e.Cancel = True : Exit Sub
         Next
 
@@ -177,19 +188,59 @@ Public Class Form1
     End Sub
 
     Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
-        MessageBox.Show($"{DeletedFiles} have been deleted, {Errors} errors have occurred.", "Process finished")
-        If Not Errorlist = Nothing And Not Errorlist = "" Then MessageBox.Show($"Errorlist:{vbCrLf}{Errorlist}")
+        MessageBox.Show($"{DeletedFiles:#,##0} files have been deleted, {Errors:#,##0} errors have occurred.", "Process finished")
+        If Errors > 0 Then
+            Dim ErrString As String = $"While deleting map-files between the coordinates {TB1} and {TB2}, the following {Errors:#,##0} errors occurred:{vbCrLf}{vbCrLf}{vbCrLf}{vbCrLf}"
+            If CB2 Then
+                Dim Backuppath As String = TB5
+                If Not Backuppath.EndsWith("\") Then Backuppath &= "\"
+                Try
+                    Dim Filepath As String = Backuppath & $"{Now:PZMD Errorlog yy-MM-dd, HH-mm-ss.log}"
+                    IO.File.WriteAllText(Filepath, ErrString & Errorlist)
+                    MessageBox.Show($"An errorlog has been created at ""{Filepath}"".", "Error")
+                Catch ex As Exception
+                    MessageBox.Show("There was an error trying to export the errorlog.", "Error")
+                End Try
+            Else
+                Try
+                    Dim Filepath As String = Environment.SpecialFolder.Desktop & $"{Now:PZMD Errorlog yy-MM-dd, HH-mm-ss.log}"
+                    IO.File.WriteAllText(Filepath, ErrString & Errorlist)
+                    MessageBox.Show($"An errorlog has been created on your desktop with path ""{Filepath}"".", "Error")
+                Catch ex As Exception
+                    MessageBox.Show("There was an error trying to export the errorlog.", "Error")
+                End Try
+            End If
+        End If
+        'If Not Errorlist = Nothing And Not Errorlist = "" Then MessageBox.Show($"Errorlist:{vbCrLf}{Errorlist}")
         If Not ProgressBar1.Value = 100 Then ProgressBar1.Value = 100
         Steps = 0
-        Label5.Text = $"Step {Steps}"
+        ToolStripLabel1.Text = $"Step {Steps}"
+        ToolStripLabel2.Text = "Est. time: 00:00"
         LastPercentage = 100
         Button1.Enabled = True
         Button1.Text = "Go"
     End Sub
 
     Private Sub BackgroundWorker1_ProgressChanged(sender As Object, e As ProgressChangedEventArgs) Handles BackgroundWorker1.ProgressChanged
-        If LastPercentage > e.ProgressPercentage Then Steps += 1 : Label5.Text = $"Step {Steps}"
+        If LastPercentage > e.ProgressPercentage Then Steps += 1 : ToolStripLabel1.Text = $"Step {Steps}"
         LastPercentage = e.ProgressPercentage
         ProgressBar1.Value = e.ProgressPercentage
+        ToolTip1.SetToolTip(ProgressBar1, $"{e.ProgressPercentage:N}%")
+        Dim TempSpan As New TimeSpan(0, 0, Convert.ToInt32(e.UserState))
+        If TempSpan.Hours > 0 Then ToolStripLabel2.Text = $"Est. time: {New DateTime(TempSpan.Ticks):HH:mm:ss}" _
+            Else ToolStripLabel2.Text = $"Est. time: {New DateTime(TempSpan.Ticks):mm:ss}"
+    End Sub
+
+    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
+        TextBox4.Enabled = CheckBox1.Checked : TextBox6.Enabled = CheckBox1.Checked
+    End Sub
+
+    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
+        TextBox5.Enabled = CheckBox2.Checked
+    End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        CheckBox1_CheckedChanged(Nothing, Nothing)
+        CheckBox2_CheckedChanged(Nothing, Nothing)
     End Sub
 End Class
