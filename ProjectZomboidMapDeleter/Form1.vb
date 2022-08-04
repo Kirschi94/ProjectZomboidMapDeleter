@@ -240,7 +240,27 @@ Public Class Form1
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        TextBox1.Text = My.Settings.TB1
+        TextBox2.Text = My.Settings.TB2
+        TextBox3.Text = My.Settings.TB3
+        TextBox4.Text = My.Settings.TB4
+        TextBox5.Text = My.Settings.TB5
+        TextBox6.Text = My.Settings.TB6
+        CheckBox1.Checked = My.Settings.CB1
+        CheckBox2.Checked = My.Settings.CB2
+
         CheckBox1_CheckedChanged(Nothing, Nothing)
         CheckBox2_CheckedChanged(Nothing, Nothing)
+    End Sub
+
+    Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+        My.Settings.TB1 = TextBox1.Text
+        My.Settings.TB2 = TextBox2.Text
+        My.Settings.TB3 = TextBox3.Text
+        My.Settings.TB4 = TextBox4.Text
+        My.Settings.TB5 = TextBox5.Text
+        My.Settings.TB6 = TextBox6.Text
+        My.Settings.CB1 = CheckBox1.Checked
+        My.Settings.CB2 = CheckBox2.Checked
     End Sub
 End Class
