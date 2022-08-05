@@ -131,16 +131,6 @@ Public Class Form1
         If Not Mappath.EndsWith("\") Then Mappath &= "\"
         If Not Backuppath.EndsWith("\") Then Backuppath &= "\"
 
-        If Not IO.Directory.Exists(TB3) Then MessageBox.Show("Error", "Mapfile-Path does not exist.") : Exit Sub
-        If CB2 And Not IO.Directory.Exists(TB5) Then
-            Try
-                IO.Directory.CreateDirectory(TB5)
-            Catch ex As Exception
-                MessageBox.Show("Error", "Backups-Path could not be created.")
-                Exit Sub
-            End Try
-        End If
-
         Dim DeletedFiles_i As Integer
         Dim Errors_i As Integer = 0
         Dim ErrorList_i As String = ""
@@ -171,14 +161,63 @@ Public Class Form1
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 #Region "RegEx"
-        If Not Regex.IsMatch(TextBox1.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
-        If Not Regex.IsMatch(TextBox2.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        If Not Regex.IsMatch(TextBox1.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
+        If Not Regex.IsMatch(TextBox2.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
         If CheckBox1.Checked Then
-            If Not Regex.IsMatch(TextBox4.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
-            If Not Regex.IsMatch(TextBox6.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+            If Not Regex.IsMatch(TextBox4.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
+            If Not Regex.IsMatch(TextBox6.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
         End If
-        If Not Regex.IsMatch(TextBox3.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
-        If CheckBox2.Checked Then If Not Regex.IsMatch(TextBox5.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        If Not Regex.IsMatch(TextBox3.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
+        If CheckBox2.Checked Then If Not Regex.IsMatch(TextBox5.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation) : Exit Sub
+#End Region
+#Region "Check Folder"
+        Dim Mappath As String = TextBox3.Text
+        Dim Backuppath As String = TextBox5.Text
+        If Not Mappath.EndsWith("\") Then Mappath &= "\"
+        If Not Backuppath.EndsWith("\") Then Backuppath &= "\"
+
+        If Not IO.Directory.Exists(Mappath) Then MessageBox.Show("Mapfile-Path does not exist.", "Error") : Exit Sub
+        If CheckBox2.Checked And IO.Directory.Exists(Backuppath) And IO.Directory.GetFiles(Backuppath).Length > 0 Then _
+            If MessageBox.Show($"The folder you chose for backing up the mapfiles seems to be in use.{vbCrLf}Do you still want to use it?", "Warning",
+                               MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then Exit Sub
+        If CheckBox2.Checked And Not IO.Directory.Exists(Backuppath) Then
+            Try
+                IO.Directory.CreateDirectory(Backuppath)
+            Catch ex As Exception
+                MessageBox.Show($"Backups-Path could not be created:{vbCrLf}{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error) : Exit Sub
+            End Try
+        End If
+
+        Dim Foldercheck As Integer = 0
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If Regex.IsMatch(file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)), "^chunkdata_[\d]{1,3}_[\d]{1,3}\.bin$") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("rosion.in") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If Regex.IsMatch(file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)), "^map_[\d]{2,6}_[\d]{2,6}\.bin$") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If Regex.IsMatch(file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)), "^zpop_[\d]{1,3}_[\d]{1,3}\.bin$") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("orldDictionary.bi") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("ehicles.d") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("layers.d") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("ap_zone.bi") Then Foldercheck += 1 : Exit For
+        Next
+        For Each file In IO.Directory.GetFiles(Mappath)
+            If file.Substring(file.LastIndexOf("\") + 1, file.Length - (file.LastIndexOf("\") + 1)).Contains("ap_meta.bi") Then Foldercheck += 1 : Exit For
+        Next
+        If Foldercheck <= 6 Then If MessageBox.Show($"It seems you have selected the wrong folder for the mapfiles.{vbCrLf}Do you still want to continue?", "Warning",
+                                                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Exit Sub
 #End Region
 #Region "Button Actions"
         If Button1.Text = "Go" Then
@@ -200,7 +239,7 @@ Public Class Form1
     End Sub
 #Region "Windows Forms Actions"
     Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
-        MessageBox.Show($"{DeletedFiles:#,##0} files have been deleted, {Errors:#,##0} errors have occurred.", "Process finished")
+        MessageBox.Show($"{DeletedFiles:#,##0} files have been deleted, {Errors:#,##0} errors have occurred.", "Process finished", MessageBoxButtons.OK)
         If Errors > 0 Then
             Dim ErrString As String = $"While deleting map-files between the coordinates {TB1} and {TB2}, the following {Errors:#,##0} errors occurred:{vbCrLf}{vbCrLf}{vbCrLf}{vbCrLf}"
             If CB2 Then
@@ -209,17 +248,17 @@ Public Class Form1
                 Try
                     Dim Filepath As String = Backuppath & $"PZMD Errorlog {Now:yy-MM-dd, HH-mm-ss}h.log"
                     IO.File.WriteAllText(Filepath, ErrString & Errorlist)
-                    MessageBox.Show($"An errorlog has been created at ""{Filepath}"".", "Error")
+                    MessageBox.Show($"An errorlog has been created at ""{Filepath}"".", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Catch ex As Exception
-                    MessageBox.Show("There was an error trying to export the errorlog.", "Error")
+                    MessageBox.Show("There was an error trying to export the errorlog.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             Else
                 Try
                     Dim Filepath As String = Environment.SpecialFolder.Desktop & $"PZMD Errorlog {Now:yy-MM-dd, HH-mm-ss}h.log"
                     IO.File.WriteAllText(Filepath, ErrString & Errorlist)
-                    MessageBox.Show($"An errorlog has been created on your desktop with path ""{Filepath}"".", "Error")
+                    MessageBox.Show($"An errorlog has been created on your desktop with path ""{Filepath}"".", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Catch ex As Exception
-                    MessageBox.Show("There was an error trying to export the errorlog.", "Error")
+                    MessageBox.Show("There was an error trying to export the errorlog.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End If
         End If
@@ -259,43 +298,56 @@ Public Class Form1
     End Sub
 
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
-        If BackgroundWorker1.IsBusy Then e.Cancel = True _
+        If BackgroundWorker1.IsBusy Then e.Cancel = True : MessageBox.Show("The program cannot be closed while it is busy.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Information) _
         Else Save_ini()
     End Sub
 #End Region
 #Region ".ini handling"
     Private Sub Save_ini()
-        Dim iniString As String = ""
-        iniString &= $"TB1:""{TextBox1.Text}""{vbCrLf}"
-        iniString &= $"TB2:""{TextBox2.Text}""{vbCrLf}"
-        iniString &= $"TB3:""{TextBox3.Text}""{vbCrLf}"
-        iniString &= $"TB4:""{TextBox4.Text}""{vbCrLf}"
-        iniString &= $"TB5:""{TextBox5.Text}""{vbCrLf}"
-        iniString &= $"TB6:""{TextBox6.Text}""{vbCrLf}"
-        iniString &= $"CB1:{CheckBox1.Checked}{vbCrLf}"
-        iniString &= $"CB2:{CheckBox2.Checked}{vbCrLf}"
-        IO.File.WriteAllText(Application.StartupPath & "\settings.ini", iniString)
+Resave:
+        Try
+            Dim iniString As String = ""
+            iniString &= $"TB1:""{TextBox1.Text}""{vbCrLf}"
+            iniString &= $"TB2:""{TextBox2.Text}""{vbCrLf}"
+            iniString &= $"TB3:""{TextBox3.Text}""{vbCrLf}"
+            iniString &= $"TB4:""{TextBox4.Text}""{vbCrLf}"
+            iniString &= $"TB5:""{TextBox5.Text}""{vbCrLf}"
+            iniString &= $"TB6:""{TextBox6.Text}""{vbCrLf}"
+            iniString &= $"CB1:{CheckBox1.Checked}{vbCrLf}"
+            iniString &= $"CB2:{CheckBox2.Checked}{vbCrLf}"
+            IO.File.WriteAllText(Application.StartupPath & "\settings.ini", iniString)
+        Catch ex As Exception
+            If MessageBox.Show("Settings file could not be saved. Do you want to try again?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.Yes Then GoTo Resave _
+                Else MessageBox.Show($"Settings file could not be saved due to the following error:{vbCrLf}{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End Try
     End Sub
     Private Sub Load_And_Apply_ini(Optional path As String = Nothing)
-        If IsNothing(path) Then path = Application.StartupPath & "\settings.ini"
-        If Not IO.File.Exists(path) Then Exit Sub
-        Dim iniLines As String() = IO.File.ReadAllLines(path)
-        Dim EmptyLineCounter As Integer = 0
-        For Each Line In iniLines
-            If Not Line.Length = 0 AndAlso Not Line = "" AndAlso Not IsNothing(Line) Then
-                If Line.StartsWith("TB1:") Then TextBox1.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("TB2:") Then TextBox2.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("TB3:") Then TextBox3.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("TB4:") Then TextBox4.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("TB5:") Then TextBox5.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("TB6:") Then TextBox6.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
-                If Line.StartsWith("CB1:") Then CheckBox1.Checked = Line.Substring(4, Line.Length - 4) : Continue For
-                If Line.StartsWith("CB2:") Then CheckBox2.Checked = Line.Substring(4, Line.Length - 4) : Continue For
-            Else
-                EmptyLineCounter += 1
-            End If
-        Next
-        If (iniLines.Length - EmptyLineCounter) < 8 Then MessageBox.Show("Settings file could not be read properly. Some saved settings might not have been applied.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+Reload:
+        Try
+            If IsNothing(path) Then path = Application.StartupPath & "\settings.ini"
+            If Not IO.File.Exists(path) Then Exit Sub
+            Dim iniLines As String() = IO.File.ReadAllLines(path)
+            Dim EmptyLineCounter As Integer = 0
+            For Each Line In iniLines
+                If Not Line.Length = 0 AndAlso Not Line = "" AndAlso Not IsNothing(Line) Then
+                    If Line.StartsWith("TB1:") Then TextBox1.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("TB2:") Then TextBox2.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("TB3:") Then TextBox3.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("TB4:") Then TextBox4.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("TB5:") Then TextBox5.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("TB6:") Then TextBox6.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                    If Line.StartsWith("CB1:") Then CheckBox1.Checked = Line.Substring(4, Line.Length - 4) : Continue For
+                    If Line.StartsWith("CB2:") Then CheckBox2.Checked = Line.Substring(4, Line.Length - 4) : Continue For
+                Else
+                    EmptyLineCounter += 1
+                End If
+            Next
+            If (iniLines.Length - EmptyLineCounter) < 8 Then MessageBox.Show("Settings file could not be read properly. Some saved settings might not have been applied.",
+                                                                             "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Catch ex As Exception
+            If MessageBox.Show("Settings file could not be read. Do you want to try again?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.Yes Then GoTo Reload _
+                Else MessageBox.Show($"Settings file could not be read due to the following error:{vbCrLf}{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End Try
     End Sub
 #End Region
 End Class

@@ -6,6 +6,7 @@
     <RootNamespace>ProjectZomboidMapDeleter</RootNamespace>
     <StartupObject>ProjectZomboidMapDeleter.Form1</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>logo_pzmd2,1.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
