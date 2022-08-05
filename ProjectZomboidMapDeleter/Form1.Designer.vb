@@ -72,6 +72,7 @@ Partial Class Form1
         Me.TextBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox1.Location = New System.Drawing.Point(15, 27)
+        Me.TextBox1.MaxLength = 15
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(220, 23)
         Me.TextBox1.TabIndex = 2
@@ -81,6 +82,7 @@ Partial Class Form1
         Me.TextBox2.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox2.Location = New System.Drawing.Point(15, 83)
+        Me.TextBox2.MaxLength = 15
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.Size = New System.Drawing.Size(220, 23)
         Me.TextBox2.TabIndex = 3
@@ -119,6 +121,7 @@ Partial Class Form1
         Me.TextBox4.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox4.Location = New System.Drawing.Point(15, 239)
+        Me.TextBox4.MaxLength = 15
         Me.TextBox4.Name = "TextBox4"
         Me.TextBox4.Size = New System.Drawing.Size(220, 23)
         Me.TextBox4.TabIndex = 7
@@ -171,6 +174,7 @@ Partial Class Form1
         Me.TextBox6.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TextBox6.Location = New System.Drawing.Point(15, 286)
+        Me.TextBox6.MaxLength = 15
         Me.TextBox6.Name = "TextBox6"
         Me.TextBox6.Size = New System.Drawing.Size(220, 23)
         Me.TextBox6.TabIndex = 12
@@ -215,7 +219,7 @@ Partial Class Form1
         '
         Me.ProgressBar1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ProgressBar1.Location = New System.Drawing.Point(12, 444)
+        Me.ProgressBar1.Location = New System.Drawing.Point(12, 445)
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(226, 23)
         Me.ProgressBar1.TabIndex = 17
@@ -231,7 +235,7 @@ Partial Class Form1
         Me.ToolStrip1.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.ToolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden
         Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripLabel1, Me.ToolStripLabel2})
-        Me.ToolStrip1.Location = New System.Drawing.Point(0, 472)
+        Me.ToolStrip1.Location = New System.Drawing.Point(0, 475)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Size = New System.Drawing.Size(250, 25)
         Me.ToolStrip1.TabIndex = 19
@@ -254,7 +258,7 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(250, 497)
+        Me.ClientSize = New System.Drawing.Size(250, 500)
         Me.Controls.Add(Me.ToolStrip1)
         Me.Controls.Add(Me.ProgressBar1)
         Me.Controls.Add(Me.TextBox6)

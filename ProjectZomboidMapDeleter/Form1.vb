@@ -1,6 +1,8 @@
 ﻿Imports System.ComponentModel
+Imports System.Text.RegularExpressions
 
 Public Class Form1
+#Region "Global variables"
     Dim TB1 As String = Nothing
     Dim TB2 As String = Nothing
     Dim TB3 As String = Nothing
@@ -16,30 +18,9 @@ Public Class Form1
 
     Dim Steps As Integer = 0
     Dim LastPercentage As Integer = 100
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        If TextBox1.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
-        If TextBox2.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
-        If TextBox3.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
-        If CheckBox1.Checked And (TextBox4.Text = "" Or TextBox6.Text = "") Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
-        If CheckBox2.Checked And TextBox5.Text = "" Then MessageBox.Show("Please fill in every field.", "Error") : Exit Sub
+#End Region
 
-        If Button1.Text = "Go" Then
-            TB1 = TextBox1.Text
-            TB2 = TextBox2.Text
-            TB3 = TextBox3.Text
-            TB4 = TextBox4.Text
-            TB5 = TextBox5.Text
-            TB6 = TextBox6.Text
-            CB1 = CheckBox1.Checked
-            CB2 = CheckBox2.Checked
-            BackgroundWorker1.RunWorkerAsync()
-            Button1.Text = "Abort"
-        Else
-            Button1.Enabled = False
-            BackgroundWorker1.CancelAsync()
-        End If
-    End Sub
-
+#Region "Functions"
     Private Function Do_Coords(TBText As String)
         Dim TempString As String() = TBText.Split("x")
         For Each element In TempString
@@ -49,6 +30,7 @@ Public Class Form1
         TempString(1) = TempString(1).Remove(TempString(1).Length - 1, 1)
         Return TempString
     End Function
+#End Region
 
     Private Sub BackgroundWorker1_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
 #Region "Exclusion"
@@ -187,6 +169,36 @@ Public Class Form1
 #End Region
     End Sub
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+#Region "RegEx"
+        If Not Regex.IsMatch(TextBox1.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        If Not Regex.IsMatch(TextBox2.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        If CheckBox1.Checked Then
+            If Not Regex.IsMatch(TextBox4.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+            If Not Regex.IsMatch(TextBox6.Text, "^[\d]{2,7}x[\d]{2,7}$") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        End If
+        If Not Regex.IsMatch(TextBox3.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+        If CheckBox2.Checked Then If Not Regex.IsMatch(TextBox5.Text, "(?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+") Then MessageBox.Show("Please fill in every field (correctly).", "Error") : Exit Sub
+#End Region
+#Region "Button Actions"
+        If Button1.Text = "Go" Then
+            TB1 = TextBox1.Text
+            TB2 = TextBox2.Text
+            TB3 = TextBox3.Text
+            TB4 = TextBox4.Text
+            TB5 = TextBox5.Text
+            TB6 = TextBox6.Text
+            CB1 = CheckBox1.Checked
+            CB2 = CheckBox2.Checked
+            BackgroundWorker1.RunWorkerAsync()
+            Button1.Text = "Abort"
+        Else
+            Button1.Enabled = False
+            BackgroundWorker1.CancelAsync()
+        End If
+#End Region
+    End Sub
+#Region "Windows Forms Actions"
     Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
         MessageBox.Show($"{DeletedFiles:#,##0} files have been deleted, {Errors:#,##0} errors have occurred.", "Process finished")
         If Errors > 0 Then
@@ -195,7 +207,7 @@ Public Class Form1
                 Dim Backuppath As String = TB5
                 If Not Backuppath.EndsWith("\") Then Backuppath &= "\"
                 Try
-                    Dim Filepath As String = Backuppath & $"{Now:PZMD Errorlog yy-MM-dd, HH-mm-ss.log}"
+                    Dim Filepath As String = Backuppath & $"PZMD Errorlog {Now:yy-MM-dd, HH-mm-ss}h.log"
                     IO.File.WriteAllText(Filepath, ErrString & Errorlist)
                     MessageBox.Show($"An errorlog has been created at ""{Filepath}"".", "Error")
                 Catch ex As Exception
@@ -203,7 +215,7 @@ Public Class Form1
                 End Try
             Else
                 Try
-                    Dim Filepath As String = Environment.SpecialFolder.Desktop & $"{Now:PZMD Errorlog yy-MM-dd, HH-mm-ss.log}"
+                    Dim Filepath As String = Environment.SpecialFolder.Desktop & $"PZMD Errorlog {Now:yy-MM-dd, HH-mm-ss}h.log"
                     IO.File.WriteAllText(Filepath, ErrString & Errorlist)
                     MessageBox.Show($"An errorlog has been created on your desktop with path ""{Filepath}"".", "Error")
                 Catch ex As Exception
@@ -211,11 +223,11 @@ Public Class Form1
                 End Try
             End If
         End If
-        'If Not Errorlist = Nothing And Not Errorlist = "" Then MessageBox.Show($"Errorlist:{vbCrLf}{Errorlist}")
         If Not ProgressBar1.Value = 100 Then ProgressBar1.Value = 100
         Steps = 0
         ToolStripLabel1.Text = $"Step {Steps}"
         ToolStripLabel2.Text = "Est. time: 00:00"
+        ToolTip1.SetToolTip(ProgressBar1, Nothing)
         LastPercentage = 100
         Button1.Enabled = True
         Button1.Text = "Go"
@@ -238,29 +250,52 @@ Public Class Form1
     Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
         TextBox5.Enabled = CheckBox2.Checked
     End Sub
-
+#End Region
+#Region "Form opening and closing"
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
-        TextBox1.Text = My.Settings.TB1
-        TextBox2.Text = My.Settings.TB2
-        TextBox3.Text = My.Settings.TB3
-        TextBox4.Text = My.Settings.TB4
-        TextBox5.Text = My.Settings.TB5
-        TextBox6.Text = My.Settings.TB6
-        CheckBox1.Checked = My.Settings.CB1
-        CheckBox2.Checked = My.Settings.CB2
-
+        Load_And_Apply_ini()
         CheckBox1_CheckedChanged(Nothing, Nothing)
         CheckBox2_CheckedChanged(Nothing, Nothing)
     End Sub
 
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
-        My.Settings.TB1 = TextBox1.Text
-        My.Settings.TB2 = TextBox2.Text
-        My.Settings.TB3 = TextBox3.Text
-        My.Settings.TB4 = TextBox4.Text
-        My.Settings.TB5 = TextBox5.Text
-        My.Settings.TB6 = TextBox6.Text
-        My.Settings.CB1 = CheckBox1.Checked
-        My.Settings.CB2 = CheckBox2.Checked
+        If BackgroundWorker1.IsBusy Then e.Cancel = True _
+        Else Save_ini()
     End Sub
+#End Region
+#Region ".ini handling"
+    Private Sub Save_ini()
+        Dim iniString As String = ""
+        iniString &= $"TB1:""{TextBox1.Text}""{vbCrLf}"
+        iniString &= $"TB2:""{TextBox2.Text}""{vbCrLf}"
+        iniString &= $"TB3:""{TextBox3.Text}""{vbCrLf}"
+        iniString &= $"TB4:""{TextBox4.Text}""{vbCrLf}"
+        iniString &= $"TB5:""{TextBox5.Text}""{vbCrLf}"
+        iniString &= $"TB6:""{TextBox6.Text}""{vbCrLf}"
+        iniString &= $"CB1:{CheckBox1.Checked}{vbCrLf}"
+        iniString &= $"CB2:{CheckBox2.Checked}{vbCrLf}"
+        IO.File.WriteAllText(Application.StartupPath & "\settings.ini", iniString)
+    End Sub
+    Private Sub Load_And_Apply_ini(Optional path As String = Nothing)
+        If IsNothing(path) Then path = Application.StartupPath & "\settings.ini"
+        If Not IO.File.Exists(path) Then Exit Sub
+        Dim iniLines As String() = IO.File.ReadAllLines(path)
+        Dim EmptyLineCounter As Integer = 0
+        For Each Line In iniLines
+            If Not Line.Length = 0 AndAlso Not Line = "" AndAlso Not IsNothing(Line) Then
+                If Line.StartsWith("TB1:") Then TextBox1.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("TB2:") Then TextBox2.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("TB3:") Then TextBox3.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("TB4:") Then TextBox4.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("TB5:") Then TextBox5.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("TB6:") Then TextBox6.Text = Line.Substring(5, Line.Length - (5 + 1)) : Continue For
+                If Line.StartsWith("CB1:") Then CheckBox1.Checked = Line.Substring(4, Line.Length - 4) : Continue For
+                If Line.StartsWith("CB2:") Then CheckBox2.Checked = Line.Substring(4, Line.Length - 4) : Continue For
+            Else
+                EmptyLineCounter += 1
+            End If
+        Next
+        If (iniLines.Length - EmptyLineCounter) < 8 Then MessageBox.Show("Settings file could not be read properly. Some saved settings might not have been applied.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+#End Region
 End Class

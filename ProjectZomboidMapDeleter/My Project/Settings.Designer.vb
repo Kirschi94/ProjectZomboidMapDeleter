@@ -21,7 +21,7 @@ Namespace My
         Inherits Global.System.Configuration.ApplicationSettingsBase
         
         Private Shared defaultInstance As MySettings = CType(Global.System.Configuration.ApplicationSettingsBase.Synchronized(New MySettings()),MySettings)
-        
+
 #Region "My.Settings Auto-Save Functionality"
 #If _MyType = "WindowsForms" Then
     Private Shared addedHandler As Boolean
@@ -36,10 +36,10 @@ Namespace My
     End Sub
 #End If
 #End Region
-        
+
         Public Shared ReadOnly Property [Default]() As MySettings
             Get
-                
+
 #If _MyType = "WindowsForms" Then
                If Not addedHandler Then
                     SyncLock addedHandlerLockObject
@@ -52,102 +52,6 @@ Namespace My
 #End If
                 Return defaultInstance
             End Get
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB1() As String
-            Get
-                Return CType(Me("TB1"),String)
-            End Get
-            Set
-                Me("TB1") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB2() As String
-            Get
-                Return CType(Me("TB2"),String)
-            End Get
-            Set
-                Me("TB2") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB3() As String
-            Get
-                Return CType(Me("TB3"),String)
-            End Get
-            Set
-                Me("TB3") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB4() As String
-            Get
-                Return CType(Me("TB4"),String)
-            End Get
-            Set
-                Me("TB4") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB5() As String
-            Get
-                Return CType(Me("TB5"),String)
-            End Get
-            Set
-                Me("TB5") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property TB6() As String
-            Get
-                Return CType(Me("TB6"),String)
-            End Get
-            Set
-                Me("TB6") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
-        Public Property CB1() As Boolean
-            Get
-                Return CType(Me("CB1"),Boolean)
-            End Get
-            Set
-                Me("CB1") = value
-            End Set
-        End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
-        Public Property CB2() As Boolean
-            Get
-                Return CType(Me("CB2"),Boolean)
-            End Get
-            Set
-                Me("CB2") = value
-            End Set
         End Property
     End Class
 End Namespace
